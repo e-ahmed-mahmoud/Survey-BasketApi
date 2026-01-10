@@ -4,7 +4,6 @@ public class PollService : IPollService
 {
     private static readonly List<Poll> _polls = [new() { Id = 1, Title = "poll1", Descripation = "test poll" }];
 
-
     public IEnumerable<Poll> GetAllPolls() => _polls;
     public Poll? GetById(int id) => _polls.SingleOrDefault(p => p.Id == id);
     public Poll Add(Poll poll)
