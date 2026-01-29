@@ -23,6 +23,8 @@ public static class DependencyInjection
             builder => builder.WithOrigins(allowedOrigins!).AllowAnyMethod().AllowAnyHeader())); //WithOrigins("http://localhost:3000") for specific origins
 
         // Add services to the container.
+        services.AddExceptionHandler<GlobalExceptionsHandler>();
+        services.AddProblemDetails();
         services.AddControllers();
         services.AddIdentityConfig(configuration);
         services.AddMapsterConfig();

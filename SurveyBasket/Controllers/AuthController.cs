@@ -18,15 +18,15 @@ public class AuthController(IAuthServices authService) : ControllerBase
     {
         var authResult = await _authService.GetAuthTokenAsync(authRequest.Email, authRequest.Password, cancellationToken);
 
-        return authResult == null ? BadRequest("Invalid credentials") : Ok(authResult);
+        return authResult.IsFailure ? BadRequest(authResult.Error) : Ok(authResult.Value);
     }
 
     [HttpPost("RefreshAuth")]
     public async Task<IActionResult> RefreshAuthAsync([FromBody] RefreshTokenRequest request)
     {
-        var authResult = await _authService.GetRefreshTokenAsync(request.Token , request.RefreshToken);
+        var authResult = await _authService.GetRefreshTokenAsync(request.Token, request.RefreshToken);
 
-        return authResult == null ? BadRequest("invalid tokens") : Ok (authResult);
+        return authResult.IsFailure ? BadRequest(authResult.Error) : Ok(authResult.Value);
     }
 
 }

@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDependencies(builder.Configuration);
 var defaultLog = builder.Configuration["Logging:LogLevel:Default"];
 
-var app = builder.Build();  
+var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -28,6 +28,9 @@ app.UseHttpDataLog();
 app.UseHttpsRedirection();
 
 app.UseCors("AllowAll");
+//app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseExceptionHandler();//("error-handling-endpoint");
+
 app.UseAuthorization();
 
 app.MapIdentityApi<ApplicationUser>();
