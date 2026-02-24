@@ -19,5 +19,8 @@ public class MappingConfigurations : IRegister
 
         config.NewConfig<ApplicationUser, UserProfile>().Map(dest => dest.FullName, src => String.Concat(src.FirstName, " ", src.LastName))
             .Map(dist => dist.UserName, src => src.FirstName);
+
+        config.NewConfig<(ApplicationUser, IList<string>), UserResponse>().Map(dest => dest, user => user.Item1)
+            .Map(dest => dest.Roles, src => src.Item2);
     }
 }

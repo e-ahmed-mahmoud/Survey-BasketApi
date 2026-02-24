@@ -29,8 +29,10 @@ ILogger<AuthServices> logger, RoleManager<ApplicationRole> roleManager, Applicat
         var user = await _userManager.FindByEmailAsync(email);
         if (user == null)
             return Result.Failure<UserAuthResponse>(AuthErrors.InvalidCredentialsError);
+        if (user.IsDisabled)
+            return Result.Failure<UserAuthResponse>(AuthErrors.UserAccountDisabled);
 
-        var signInResult = await _signInManager.PasswordSignInAsync(user, password, false, false);
+        var signInResult = await _signInManager.PasswordSignInAsync(user, password, false, true);
         if (signInResult.IsNotAllowed || signInResult.IsLockedOut)
             return Result.Failure<UserAuthResponse>(signInResult.IsNotAllowed ? AuthErrors.EmailNotConfirmed : AuthErrors.UserAccountLockedOut);
         //generate Token
@@ -60,7 +62,11 @@ ILogger<AuthServices> logger, RoleManager<ApplicationRole> roleManager, Applicat
         if (userID == null) return Result.Failure<UserAuthResponse>(AuthErrors.InvalidCredentialsError);
 
         var user = await _userManager.FindByIdAsync(userID);
-        if (user == null) return Result.Failure<UserAuthResponse>(AuthErrors.InvalidCredentialsError);
+        if (user == null)
+            return Result.Failure<UserAuthResponse>(AuthErrors.InvalidCredentialsError);
+
+        if (user.IsDisabled || user.LockoutEnabled)
+            return Result.Failure<UserAuthResponse>(user.IsDisabled ? AuthErrors.UserAccountDisabled : AuthErrors.UserAccountLockedOut);
 
         var userRefreshToken = user.RefreshTokens.SingleOrDefault(t => t.Token == refreshToken && t.IsActive);
         if (userRefreshToken == null) return Result.Failure<UserAuthResponse>(AuthErrors.InvalidCredentialsError);
@@ -74,10 +80,13 @@ ILogger<AuthServices> logger, RoleManager<ApplicationRole> roleManager, Applicat
         //save new refresh token intto db, and revoke old one
         user.RefreshTokens.Add(new RefreshToken { Token = newRefreshToken, ExpiresOn = DateTime.UtcNow.AddDays(refreshTokenExpireInDays) });
         userRefreshToken.RevokedOn = DateTime.UtcNow;
+
         await _userManager.UpdateAsync(user);
+
         var response = new UserAuthResponse(user?.Id!, user?.FirstName!, user?.LastName!,
             user?.Email!, newToken, expiresIn, newRefreshToken,
             DateTime.UtcNow.AddDays(refreshTokenExpireInDays));
+
         return Result.Success(response);
     }
 

@@ -10,6 +10,7 @@ using SurveyBasket.Authentication.Authorization;
 using SurveyBasket.Extensions.Emails;
 using SurveyBasket.Services.Dashboard;
 using SurveyBasket.Services.NotificaitonServices;
+using SurveyBasket.Services.RoleServices;
 using SurveyBasket.Services.UserServices;
 using SurveyBasket.Services.VoteService;
 
@@ -34,13 +35,6 @@ public static class DependencyInjection
         //configure Email Settings
         services.Configure<EmailSettings>(configuration.GetSection(nameof(EmailSettings)));
 
-        //IdentityConfiguration 
-        services.Configure<IdentityOptions>(options =>
-        {
-            options.Password.RequiredLength = 8;
-            options.SignIn.RequireConfirmedEmail = true;
-            options.User.RequireUniqueEmail = true;
-        });
 
         // Add services to the container.
         services.AddExceptionHandler<GlobalExceptionsHandler>();
@@ -61,6 +55,7 @@ public static class DependencyInjection
         services.AddScoped<INotificaitonService, NotificaitonService>();
         services.AddSingleton<IEmailSender, EmailService>();
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IRoleService, RoleService>();
         return services;
     }
 
@@ -95,6 +90,16 @@ public static class DependencyInjection
         .AddApiEndpoints()
         .AddEntityFrameworkStores<ApplicationDbContext>()
         .AddDefaultTokenProviders();
+
+        //IdentityConfiguration 
+        services.Configure<IdentityOptions>(options =>
+        {
+            options.Password.RequiredLength = 8;
+            options.SignIn.RequireConfirmedEmail = true;
+            options.User.RequireUniqueEmail = true;
+            options.Lockout.AllowedForNewUsers = true;
+            options.Lockout.MaxFailedAccessAttempts = 5;
+        });
 
         services.AddSingleton<IJwtProvider, JwtProvider>();
 
