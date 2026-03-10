@@ -19,4 +19,7 @@ global using SurveyBasket.Errors;
 global using SurveyBasket.Contracts.Votes;
 global using SurveyBasket.Extensions;
 global using SurveyBasket.Contracts.Dashboard;
+global using SurveyBasket.Contracts.Common;
+global using SurveyBasket.Contracts.Questions;
+
 

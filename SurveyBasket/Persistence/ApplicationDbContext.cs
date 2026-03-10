@@ -28,7 +28,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             var currentUserId = _httpContextAccessor?.HttpContext?.User.GetUserId();
             if (entity.State == EntityState.Added)
             {
-                entity.Property(p => p.CreatedById).CurrentValue = currentUserId!;
+                entity.Property(p => p.CreatedById).CurrentValue = currentUserId ?? "48606D7C-F8DA-406D-B9B6-C1107E14A515";
             }
             if (entity.State == EntityState.Modified)
             {

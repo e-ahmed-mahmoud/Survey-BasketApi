@@ -1,23 +1,32 @@
 ﻿
+using Asp.Versioning;
 using SurveyBasket.Abstractions.Const;
 using SurveyBasket.Authentication.Authorization;
 
 namespace SurveyBasket.Controllers;
 
+[ApiVersion("1.0", Deprecated = true)]
+[ApiVersion("2.0")]
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public class PollsController(IPollService pollService, IMapper mapper) : ControllerBase
+public class PollsController(IPollService pollService) : ControllerBase
 {
     private readonly IPollService _pollService = pollService;
-    private readonly IMapper _mapper = mapper;
 
-    [HttpGet("[action]")]
+    [MapToApiVersion(1.0)]
+    [HttpGet("GetPolls")]
     [HasPermission(policyName: PermissionsClaims.GetPolls)]
-    public async Task<IActionResult> GetPolls(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetPollsV1(CancellationToken cancellationToken)
     {
         return Ok((await _pollService.GetAllPollsAsync(cancellationToken)).Value);
     }
+
+    [MapToApiVersion("2.0")]
+    [HttpGet("GetPolls")]
+    [HasPermission(policyName: PermissionsClaims.GetPolls)]
+    public async Task<IActionResult> GetPollsV2(CancellationToken cancellationToken) => Ok((await _pollService.GetAllPollsV2Async(cancellationToken)).Value);
+
     [HttpGet("[action]")]
     public async Task<IActionResult> GetCurrentPolls(CancellationToken cancellationToken)
     {

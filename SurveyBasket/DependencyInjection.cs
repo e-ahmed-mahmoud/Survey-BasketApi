@@ -1,9 +1,13 @@
 using System.Reflection;
 using System.Text;
+using System.Threading.RateLimiting;
+using Asp.Versioning;
 using FluentValidation.AspNetCore;
 using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using SurveyBasket.Authentication;
 using SurveyBasket.Authentication.Authorization;
@@ -46,6 +50,20 @@ public static class DependencyInjection
         services.AddSwaggerAndOpenApi();
         services.AddHttpContextAccessor();
         services.AddHangfireConfig(configuration);
+        services.ConfigRateLimit();
+        services.AddApiVersioning(options =>
+        {
+            options.DefaultApiVersion = new ApiVersion(majorVersion: 1);
+            options.AssumeDefaultVersionWhenUnspecified = true;
+            options.ApiVersionReader = new HeaderApiVersionReader("x-api-version");
+            options.ReportApiVersions = true;
+        }
+        ).AddApiExplorer(options =>
+        {
+            options.GroupNameFormat = "'v'V";   // define API version format in swagger, 'v' is prefix, V is version number
+            options.SubstituteApiVersionInUrl = true;   // substitute API version in URL when generating swagger docs
+        });
+
 
         services.AddScoped<IPollService, PollService>();
         services.AddScoped<IQuestionService, QuestionService>();
@@ -148,6 +166,68 @@ public static class DependencyInjection
 
         // Add the processing server as IHostedService
         services.AddHangfireServer();
+        return services;
+    }
+    public static IServiceCollection ConfigRateLimit(this IServiceCollection services)
+    {
+        services.AddRateLimiter(rateLimiterOpitons =>
+        {
+            rateLimiterOpitons.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+            rateLimiterOpitons.AddConcurrencyLimiter(policyName: "concurrencyLimit", options =>
+            {
+                options.PermitLimit = 2;       //number of concurrent requests
+                options.QueueLimit = 1;         //requests that can wait in waiting queue 
+                options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;    // queue style FIFO
+            });
+            // rateLimiterOpitons.AddTokenBucketLimiter(policyName: "tokenBucketLimit", options =>
+            // {
+            //     options.TokenLimit = 2;              //number of tokens in the bucket
+            //     options.QueueLimit = 1;                //requests that can wait in waiting queue
+            //     options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;    // queue style FIFO
+            //     options.ReplenishmentPeriod = TimeSpan.FromSeconds(100);   //time to refill the bucket
+            //     options.TokensPerPeriod = 1;         //number of tokens to add each replen
+            //     options.AutoReplenishment = true;       //auto replenish tokens at added
+            // });
+            // rateLimiterOpitons.AddFixedWindowLimiter(policyName: "fixedWindowLimit", options =>
+            // {
+            //     options.PermitLimit = 2;              //number of requests allowed in the window
+            //     options.Window = TimeSpan.FromSeconds(10);   //time window duration
+            //     options.QueueLimit = 1;                //requests that can wait in waiting queue
+            //     options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;    // queue style FIFO
+            // });
+            // rateLimiterOpitons.AddSlidingWindowLimiter(policyName: "slidingWindowLimit", options =>
+            // {
+            //     options.PermitLimit = 2;              //number of requests allowed in the window
+            //     options.SegmentsPerWindow = 2;        //number of segments in the window
+            //     options.Window = TimeSpan.FromSeconds(10);   //time window duration
+            //     options.QueueLimit = 1;                //requests that can wait in waiting queue
+            //     options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;    // queue style FIFO
+            // });
+            //Limit IP
+            rateLimiterOpitons.AddPolicy("IPPolicyLimit", httpContext =>
+
+                RateLimitPartition.GetFixedWindowLimiter(
+                        partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                        factory: _ => new FixedWindowRateLimiterOptions
+                        {
+                            PermitLimit = 2,
+                            Window = TimeSpan.FromSeconds(10)
+                        }
+                    )
+                );
+            rateLimiterOpitons.AddPolicy("userLimit", httpContext =>
+
+                RateLimitPartition.GetFixedWindowLimiter(
+                    partitionKey: httpContext.User?.Identity?.Name!.ToString() ?? "anonymous",
+                    factory: _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = 2,
+                        Window = TimeSpan.FromSeconds(10)
+                    }
+                )
+            );
+
+        });
         return services;
     }
 }

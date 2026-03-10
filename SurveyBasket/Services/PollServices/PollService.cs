@@ -11,6 +11,15 @@ public class PollService(ApplicationDbContext dbContext) : IPollService
             Result.Failure<List<PollResponse>>(PollErrors.NotDefinedError) :
             Result.Success(polls);
     }
+
+    public async Task<Result<List<PollResponseV2>>> GetAllPollsV2Async(CancellationToken cancellationToken = default)
+    {
+        var polls = await _dbContext.Polls.AsNoTracking().ProjectToType<PollResponseV2>().ToListAsync(cancellationToken);
+        return polls is null || !polls.Any() ?
+            Result.Failure<List<PollResponseV2>>(PollErrors.NotDefinedError) :
+            Result.Success(polls);
+    }
+
     public async Task<IEnumerable<PollResponse>> GetCurrentPollsAsync(CancellationToken cancellationToken = default) => await _dbContext.Polls
         .Where(p => p.IsPublished && p.StartAt <= DateOnly.FromDateTime(DateTime.UtcNow) && p.EndAt >= DateOnly.FromDateTime(DateTime.UtcNow))
         .AsNoTracking().ProjectToType<PollResponse>().ToListAsync(cancellationToken);

@@ -9,5 +9,6 @@
     "github.copilot.chat.localeOverride": "en",
     "typescript.locale": "en",
     "terminal.integrated.localEchoStyle": "dim",
-    "files.defaultLanguage": "en-US"
+    "files.defaultLanguage": "en-US",
+    "chat.disableAIFeatures": false
 }

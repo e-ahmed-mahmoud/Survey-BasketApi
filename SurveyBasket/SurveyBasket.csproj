@@ -6,6 +6,12 @@
     <UserSecretsId>3905cc52-1aed-4f62-b557-125997f5e9d4</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Asp.Versioning.Http" Version="10.0.0-preview.1" />
+    <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="10.0.0-preview.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Hangfire" Version="9.0.0" />
+    <PackageReference Include="AspNetCore.HealthChecks.SqlServer" Version="9.0.0" />
+    <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="9.0.0" />
+    <PackageReference Include="AspNetCore.HealthChecks.Uris" Version="9.0.0" />
     <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
     <PackageReference Include="Hangfire.AspNetCore" Version="1.8.23" />
@@ -28,5 +34,6 @@
     <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.0.1" />
     <PackageReference Include="Mapster.DependencyInjection" Version="*" />
+    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.7.1" />
   </ItemGroup>
 </Project>

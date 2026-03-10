@@ -1,19 +1,32 @@
+using System.Threading.RateLimiting;
 using Hangfire;
-using Hangfire.Dashboard;
 using HangfireBasicAuthenticationFilter;
+using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Options;
 using Scalar.AspNetCore;
 using Serilog;
 using SurveyBasket;
+using SurveyBasket.Extensions;
+using SurveyBasket.Health;
 using SurveyBasket.Middlewares;
-using SurveyBasket.Services.DistributedCache;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDependencies(builder.Configuration);
 builder.Host.UseSerilog((context, config) => config.ReadFrom.Configuration(context.Configuration));
 
+builder.Services.AddHealthChecks()
+    .AddSqlServer(name: "DbCheck", connectionString: builder.Configuration.GetConnectionString("DefaultConnection")!)
+    .AddHangfire(options => { options.MinimumAvailableServers = 1; })
+    .AddCheck<MailProviderHealthCheck>(name: "Mail Provider Check");
+//.AddUrlGroup(name: "external URI Check ", uri: new Uri("https://zwww.google.com/"));
+
 var app = builder.Build();
+
+// Seed the database
+await app.SeedDatabaseAsync();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -50,10 +63,17 @@ app.UseHangfireDashboard("/hangfire", new DashboardOptions
     //IsReadOnlyFunc = (DashboardContext context) => true  //make trigger and delete dashboard buttons hidden 
 });
 
-app.InvokeAutomatedHangfireJobs();
+app.UseHealthChecks("/health", new HealthCheckOptions()
+{
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
+
+app.MapControllers();
+
+app.UseRateLimiter();
 
 app.MapIdentityApi<ApplicationUser>();
 
-app.MapControllers();
+app.InvokeAutomatedHangfireJobs();
 
 app.Run();

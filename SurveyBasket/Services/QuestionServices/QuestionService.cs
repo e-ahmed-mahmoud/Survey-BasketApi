@@ -1,3 +1,4 @@
+using System.Linq.Dynamic.Core;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Caching.Memory;
@@ -11,20 +12,30 @@ public class QuestionService(ApplicationDbContext context, HybridCache hybridCac
     private readonly ApplicationDbContext _context = context;
     private readonly HybridCache _hybridCache = hybridCache;
     private const string _cacheKeyPrefix = "PollId-";
-    public async Task<Result<IEnumerable<QuestionResponse>>> GetAll(int pollId, CancellationToken cancellationToken)
+    public async Task<Result<PaginatedList<QuestionResponse>>> GetAll(int pollId, RequestFilters filters, CancellationToken cancellationToken = default)
     {
         var pollIsExists = await _context.Polls.AnyAsync(p => p.Id == pollId, cancellationToken);
         if (!pollIsExists)
-            return Result.Failure<IEnumerable<QuestionResponse>>(new Error("Poll not found", "The specified poll does not exist.", 404));
+            return Result.Failure<PaginatedList<QuestionResponse>>(new Error("Poll not found", "The specified poll does not exist.", 404));
 
-        var uniqueCachedKey = String.Concat(_cacheKeyPrefix, pollId);
-        var res = await _hybridCache.GetOrCreateAsync(uniqueCachedKey, async res =>
-             await _context.Questions.Where(q => q.IsActive && q.PollId == pollId)
-            .Include(q => q.Answers)
-            .ProjectToType<QuestionResponse>()
-            .ToListAsync(cancellationToken)); //, new HybridCacheEntryOptions { Expiration = TimeSpan.FromMinutes(30) });
+        //var uniqueCachedKey = String.Concat(_cacheKeyPrefix, pollId);
+        var query = _context.Questions.Where(q => q.IsActive && q.PollId == pollId);
 
-        return Result.Success<IEnumerable<QuestionResponse>>(res);
+        if (!string.IsNullOrEmpty(filters.Search))
+        {
+            query = query.Where(x => x.Content.Contains(filters.Search) || x.Poll.Title.Contains(filters.Search));
+        }
+        //.ToListAsync(cancellationToken); //, new HybridCacheEntryOptions { Expiration = TimeSpan.FromMinutes(30) });
+        if (!string.IsNullOrEmpty(filters.Sort))
+        {
+            //Order by constructor only define in Linq.Dyinamic 
+            query = query.OrderBy($"{filters.Sort} {filters.SortDir ?? "asc"}");
+        }
+
+        var source = query.Include(q => q.Answers).ProjectToType<QuestionResponse>().AsNoTracking();
+        var pages = await PaginatedList<QuestionResponse>.CreatePageAsync(source, filters.PageSize, filters.PageNumber, cancellationToken);
+
+        return Result.Success(pages);
     }
     public async Task<Result<QuestionResponse>> GetById(int pollId, int questionId, CancellationToken cancellationToken)
     {

@@ -2,13 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using SurveyBasket.Services.UserServices;
 
 namespace SurveyBasket.Controllers;
 
-[ApiController]
 [Route("api/[controller]")]
+[ApiController]
 public class AuthController(IAuthServices authService) : ControllerBase
 {
     private readonly IAuthServices _authService = authService;
@@ -62,5 +64,14 @@ public class AuthController(IAuthServices authService) : ControllerBase
     {
         var result = await _authService.ForgetPasswordAsync(User.GetUserId()!, request);
         return result.IsSuccess ? NoContent() : result.ToProblem(result.Error.StatusCode);
+    }
+
+    [HttpGet("[action]")]
+    [AllowAnonymous]
+    [EnableRateLimiting("tokenBucketLimit")]
+    public IActionResult Test()
+    {
+        Thread.Sleep(10000);
+        return Ok();
     }
 }
