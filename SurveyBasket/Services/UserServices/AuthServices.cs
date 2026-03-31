@@ -129,7 +129,7 @@ ILogger<AuthServices> logger, RoleManager<ApplicationRole> roleManager, Applicat
     public async Task<Result> ConfirmEmail(EmailConfirm request)
     {
         if (await _userManager.FindByIdAsync(request.UserId) is not { } user)
-            return Result.Failure(AuthErrors.InvalidEmailConfirmation);
+            return Result.Failure(AuthErrors.InvalidEmailConfirmation with { StatusCode = 404 });
 
         if (user.EmailConfirmed)
             return Result.Failure(AuthErrors.EmailConfirmedBefore);

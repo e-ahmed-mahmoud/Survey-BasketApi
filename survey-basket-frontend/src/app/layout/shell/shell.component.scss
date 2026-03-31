@@ -1,0 +1,160 @@
+@use 'sass:map';
+
+.container-fluid {
+  height: 100vh;
+  width: 100%;
+  display: flex;
+}
+
+mat-sidenav-container {
+  height: 100vh;
+  width: 100%;
+  display: flex;
+}
+
+.app-sidenav {
+  width: 260px;
+  background: var(--sidenav-bg);
+  border-right: none;
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+
+  .sidenav-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 16px;
+    background: var(--primary-gradient);
+
+    .logo-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+      color: white;
+    }
+
+    .logo-text {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: white;
+      letter-spacing: 0.5px;
+    }
+  }
+
+  .nav-list {
+    flex: 1;
+    padding: 8px 0;
+  }
+
+  .nav-item {
+    margin: 4px 8px;
+    border-radius: 10px;
+    color: var(--nav-text);
+    transition: background 0.2s ease, color 0.2s ease;
+
+    mat-icon {
+      color: var(--nav-icon);
+    }
+
+    &:hover {
+      background: var(--nav-hover-bg);
+    }
+
+    &.active-nav-item {
+      background: var(--nav-active-bg);
+      color: var(--nav-active-text);
+
+      mat-icon {
+        color: var(--nav-active-text);
+      }
+    }
+  }
+
+  .sidenav-footer {
+    padding-bottom: 8px;
+
+    .logout-btn {
+      width: 100%;
+      color: #ef5350;
+
+      mat-icon {
+        color: #ef5350;
+      }
+    }
+  }
+}
+
+.shell-content {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.app-toolbar {
+  background: var(--toolbar-bg) !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  height: 64px;
+
+  .toolbar-spacer {
+    flex: 1;
+  }
+}
+
+.page-content {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--page-bg);
+  display: flex;
+  flex-direction: column;
+}
+
+.content-wrapper {
+  padding: 24px;
+  flex: 1;
+  max-width: 1440px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.app-footer {
+  margin-top: auto;
+  background: var(--card-bg);
+  border-top: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+
+  .footer-container {
+    padding: 20px 24px;
+    max-width: 1440px;
+    margin: 0 auto;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-social {
+    display: flex;
+    gap: 16px;
+
+    a {
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      transition: color 0.2s ease, transform 0.2s ease;
+
+      &:hover {
+        color: var(--primary);
+        transform: translateY(-2px);
+      }
+
+      mat-icon {
+        font-size: 22px;
+        width: 22px;
+        height: 22px;
+      }
+    }
+  }
+}

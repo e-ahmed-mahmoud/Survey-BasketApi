@@ -1,0 +1,155 @@
+<div class="dashboard-page fade-in container-fluid">
+  <div class="page-header">
+    <div class="header-left">
+      <h1 class="page-title">Dashboard</h1>
+      <p class="page-subtitle">Overview of your survey activity</p>
+    </div>
+    @if(isAdminOnly()) {
+    <div class="header-actions">
+      <a routerLink="/polls" mat-raised-button color="primary" id="go-to-polls-btn">
+        <mat-icon>add</mat-icon> New Poll
+      </a>
+    </div>
+    }
+  </div>
+
+  @if (loading()) {
+  <div class="loading-center"><mat-spinner diameter="48" /></div>
+  } @else {
+  <!-- Stat cards -->
+  <div class="grid-4 stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon"><mat-icon>poll</mat-icon></div>
+      <div class="stat-info">
+        <div class="stat-value">{{ totalPolls() }}</div>
+        <div class="stat-label">Total Polls</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background: var(--accent-gradient)"><mat-icon>public</mat-icon></div>
+      <div class="stat-info">
+        <div class="stat-value">{{ publishedCount() }}</div>
+        <div class="stat-label">Published</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background: linear-gradient(135deg,#ff9800,#ff5722)"><mat-icon>lock</mat-icon></div>
+      <div class="stat-info">
+        <div class="stat-value">{{ totalPolls() - publishedCount() }}</div>
+        <div class="stat-label">Drafts</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background: linear-gradient(135deg,#4caf50,#8bc34a)">
+        <mat-icon>how_to_vote</mat-icon>
+      </div>
+      <div class="stat-info">
+        <div class="stat-value">—</div>
+        <div class="stat-label">Total Votes</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Polls quick list -->
+  <div class="sb-card polls-quick-card">
+    <h3>Recent Polls</h3>
+    @if (polls().length === 0) {
+    <p class="empty-msg">No polls yet. @if(isAdminOnly()) { <a routerLink="/polls">Create your first poll</a> }
+    </p>
+    } @else {
+    <div class="polls-list">
+      @for (poll of polls().slice(0, 6); track poll.id) {
+      <a [routerLink]="['/polls', poll.id]" class="poll-row">
+        <div class="poll-row-info">
+          <span class="poll-row-title">{{ poll.title }}</span>
+          <span class="poll-row-date">{{ poll.startsAt | date:'mediumDate' }}</span>
+        </div>
+        @if(isAdminOnly()) {
+        <span class="status-chip" [class.published]="poll.isPublished" [class.draft]="!poll.isPublished">
+          {{ poll.isPublished ? 'Published' : 'Draft' }}
+        </span>
+        }
+      </a>
+      }
+    </div>
+    <a routerLink="/polls" class="see-all-link">See all polls →</a>
+    }
+  </div>
+
+  <!-- Charts section (Admin only) -->
+  @if (isAdminOnly() && polls().length > 0) {
+  <div class="charts-section">
+    <!-- Poll selector -->
+    <div class="charts-header">
+      <h2>Analytics</h2>
+      <mat-form-field appearance="outline" class="poll-selector">
+        <mat-label>Select Poll</mat-label>
+        <mat-select [value]="selectedPollId()" (selectionChange)="selectedPollId.set($event.value)">
+          @for (poll of polls(); track poll.id) {
+          <mat-option [value]="poll.id">{{ poll.title }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    @if (chartLoading()) {
+    <div class="charts-loading">
+      <mat-spinner diameter="40" />
+      <p>Loading analytics...</p>
+    </div>
+    } @else if (totalVotes() === 0) {
+    <div class="sb-card empty-chart">
+      <p>No voting data available for this poll yet.</p>
+    </div>
+    } @else {
+    <div class="charts-grid">
+      <!-- Votes Per Day Line Chart -->
+      <div class="sb-card chart-card">
+        <h3>Votes Over Time</h3>
+        @if (votesPerDay().length > 0) {
+        <div class="chart-container">
+          <canvas
+            baseChart
+            [type]="'line'"
+            [data]="lineChartConfig().datasets.length > 0 ? lineChartConfig() : null"
+            [options]="lineChartOptions">
+          </canvas>
+        </div>
+        } @else {
+        <p class="no-data-msg">No time-series data available</p>
+        }
+      </div>
+
+      <!-- Votes Per Answer Bar Chart -->
+      <div class="sb-card chart-card">
+        <h3>Response Distribution</h3>
+        @if (votesPerAnswer().length > 0) {
+        <div class="chart-container">
+          <canvas
+            baseChart
+            [type]="'bar'"
+            [data]="barChartConfig().datasets.length > 0 ? barChartConfig() : null"
+            [options]="barChartOptions">
+          </canvas>
+        </div>
+        } @else {
+        <p class="no-data-msg">No response data available</p>
+        }
+      </div>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="sb-card stats-summary">
+      <div class="summary-stat">
+        <span class="stat-label">Total Responses</span>
+        <span class="stat-value">{{ totalVotes() }}</span>
+      </div>
+      <div class="summary-stat">
+        <span class="stat-label">Questions</span>
+        <span class="stat-value">{{ votesPerAnswer().length }}</span>
+      </div>
+    </div>
+    }
+  </div>
+  }
+  }

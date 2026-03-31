@@ -131,7 +131,9 @@ public class QuestionService(ApplicationDbContext context, HybridCache hybridCac
             return Result.Failure<IEnumerable<QuestionResponse>>(new Error("User has already voted", "The user has already submitted a vote for this poll.", 409));
 
         var pollQuestions = await _context.Questions
-        .Where(q => q.IsActive && q.PollId == pollId).Include(q => q.Answers).AsNoTracking().ProjectToType<QuestionResponse>().ToListAsync(cancellationToken);
+        .Where(q => q.IsActive && q.PollId == pollId)
+        //.Include(q => q.Answers)
+        .AsNoTracking().ProjectToType<QuestionResponse>().ToListAsync(cancellationToken);
 
         if (pollQuestions is null || pollQuestions.Count == 0)
             return Result.Failure<IEnumerable<QuestionResponse>>(new Error("Questions not found", "No questions found for the specified poll.", 404));

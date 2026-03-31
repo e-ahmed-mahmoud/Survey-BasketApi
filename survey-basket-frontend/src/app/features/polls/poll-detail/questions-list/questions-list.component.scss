@@ -1,0 +1,120 @@
+.loading-center {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--text-muted);
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+  }
+
+  p {
+    margin: 0;
+    font-size: 1rem;
+
+    &.text-muted {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-top: 8px;
+    }
+  }
+}
+
+.questions-table-wrapper {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+
+  .questions-table {
+    width: 100%;
+
+    th {
+      background-color: var(--card-bg);
+      font-weight: 600;
+      color: var(--text-primary);
+      padding: 16px;
+      text-align: left;
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-primary);
+    }
+  }
+
+  .question-row {
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: rgba(63, 81, 181, 0.05);
+    }
+  }
+
+  .question-content {
+    display: block;
+    max-width: 400px;
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.5;
+  }
+
+  .status-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 0.85rem;
+    font-weight: 500;
+
+    &.active {
+      background-color: rgba(76, 175, 80, 0.2);
+      color: #2e7d32;
+    }
+
+    &.inactive {
+      background-color: rgba(244, 67, 54, 0.2);
+      color: #c62828;
+    }
+  }
+
+  .answer-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-secondary);
+    font-weight: 500;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  .delete-btn {
+    color: #f44336;
+
+    &:hover {
+      background-color: rgba(244, 67, 54, 0.1);
+    }
+  }
+}
+
+mat-paginator {
+  border-top: 1px solid var(--border-color);
+  background-color: var(--card-bg);
+}

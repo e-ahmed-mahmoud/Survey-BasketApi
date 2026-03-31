@@ -1,0 +1,39 @@
+
+<div class="fade-in">
+      <div class="page-header">
+        <div class="header-left">
+          <h1 class="page-title">Roles</h1>
+          <p class="page-subtitle">Manage system roles and permissions</p>
+        </div>
+        <div class="header-actions">
+          <button mat-raised-button color="primary" id="add-role-btn">
+            <mat-icon>add</mat-icon> Add Role
+          </button>
+        </div>
+      </div>
+      @if (loading()) { <mat-progress-bar mode="indeterminate" /> }
+      <div class="sb-table-container">
+        <table mat-table [dataSource]="dataSource">
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>Role Name</th>
+            <td mat-cell *matCellDef="let r">{{ r.name }}</td>
+          </ng-container>
+          <ng-container matColumnDef="isDefault">
+            <th mat-header-cell *matHeaderCellDef>Default</th>
+            <td mat-cell *matCellDef="let r">
+              <mat-icon [style.color]="r.isDefault ? 'var(--success)' : 'var(--text-muted)'">
+                {{ r.isDefault ? 'check_circle' : 'radio_button_unchecked' }}
+              </mat-icon>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let r">
+              <button mat-icon-button [id]="'edit-role-' + r.id"><mat-icon>edit</mat-icon></button>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="cols"></tr>
+          <tr mat-row *matRowDef="let row; columns: cols;"></tr>
+        </table>
+      </div>
+    </div>

@@ -1,14 +1,11 @@
-using System.Threading.RateLimiting;
 using Hangfire;
 using HangfireBasicAuthenticationFilter;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
 using Scalar.AspNetCore;
 using Serilog;
 using SurveyBasket;
-using SurveyBasket.Extensions;
 using SurveyBasket.Health;
 using SurveyBasket.Middlewares;
 
@@ -31,9 +28,19 @@ await app.SeedDatabaseAsync();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
-    app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "v1"));
+    app.MapOpenApi();//.RequireAuthorization("OpenAPIAdminPolicy");
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        var descriptions = app.DescribeApiVersions();
+        foreach (var description in descriptions)
+            options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
+    });
     app.MapScalarApiReference();
+}
+else
+{
+    app.MapOpenApi().RequireAuthorization("OpenAPIAdminPolicy");
 }
 
 app.UseRequestLocalization(new RequestLocalizationOptions()

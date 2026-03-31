@@ -95,10 +95,10 @@ public static class SeedData
             // await context.SaveChangesAsync();
             // context.VoteAnswers.AddRange(voteAnswers);
             // await context.SaveChangesAsync();
+            var votes = CreateVotesAndAnswers();
+            context.Votes.AddRange(votes);
+            await context.SaveChangesAsync();
         }
-        var votes = CreateVotesAndAnswers();
-        context.Votes.AddRange(votes);
-        await context.SaveChangesAsync();
     }
 
     private static List<Poll> CreatePolls(string userId)

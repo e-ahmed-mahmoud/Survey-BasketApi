@@ -1,0 +1,58 @@
+<h2 mat-dialog-title class="dialog-title">
+  <mat-icon>{{ isEdit ? 'edit' : 'add_circle' }}</mat-icon>
+  {{ title }}
+</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" novalidate class="dialog-form">
+    <mat-form-field appearance="outline">
+      <mat-label>Poll title</mat-label>
+      <input matInput formControlName="title" placeholder="e.g. Customer Satisfaction Survey" id="poll-title" />
+      @if (form.get('title')?.invalid && form.get('title')?.touched) {
+        <mat-error>Title is required (min 3 characters)</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Summary</mat-label>
+      <textarea matInput formControlName="summary" rows="3"
+        placeholder="Brief description of this poll..." id="poll-summary"></textarea>
+      @if (form.get('summary')?.invalid && form.get('summary')?.touched) {
+        <mat-error>Summary is required (min 5 characters)</mat-error>
+      }
+    </mat-form-field>
+
+    <div class="date-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Start date</mat-label>
+        <input matInput [matDatepicker]="startPicker" formControlName="startsAt" id="poll-starts" />
+        <mat-datepicker-toggle matIconSuffix [for]="startPicker" />
+        <mat-datepicker #startPicker />
+        @if (form.get('startsAt')?.invalid && form.get('startsAt')?.touched) {
+          <mat-error>Start date is required</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>End date</mat-label>
+        <input matInput [matDatepicker]="endPicker" formControlName="endsAt" id="poll-ends" />
+        <mat-datepicker-toggle matIconSuffix [for]="endPicker" />
+        <mat-datepicker #endPicker />
+        @if (form.get('endsAt')?.invalid && form.get('endsAt')?.touched) {
+          <mat-error>End date is required</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <mat-slide-toggle formControlName="isPublished" color="primary" id="poll-published">
+      Publish immediately
+    </mat-slide-toggle>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()" id="poll-cancel-btn">Cancel</button>
+  <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="loading()" id="poll-save-btn">
+    @if (loading()) { <mat-spinner diameter="18" /> } @else { {{ isEdit ? 'Save Changes' : 'Create Poll' }} }
+  </button>
+</mat-dialog-actions>

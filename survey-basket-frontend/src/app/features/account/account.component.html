@@ -1,0 +1,74 @@
+<div class="account-page fade-in">
+  <h1 class="page-title">My Account</h1>
+  <p class="page-subtitle">Manage your profile and security settings</p>
+
+  @if (loading()) {
+    <div style="display:flex;justify-content:center;padding:80px"><mat-spinner diameter="48" /></div>
+  } @else {
+    <div class="grid-2" style="align-items:start">
+      <!-- Profile Card -->
+      <div class="sb-card">
+        <div class="card-header">
+          <mat-icon class="card-icon">person</mat-icon>
+          <h3>Profile Information</h3>
+        </div>
+        <mat-divider style="margin-bottom:20px" />
+        <div class="user-badge">
+          <div class="avatar">{{ info()?.firstName?.charAt(0) }}{{ info()?.lastName?.charAt(0) }}</div>
+          <div>
+            <p class="user-name">{{ info()?.firstName }} {{ info()?.lastName }}</p>
+            <p class="user-email">{{ info()?.email }}</p>
+          </div>
+        </div>
+        <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" novalidate style="margin-top:20px">
+          <mat-form-field appearance="outline">
+            <mat-label>First name</mat-label>
+            <input matInput formControlName="firstName" id="acc-firstname" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Last name</mat-label>
+            <input matInput formControlName="lastName" id="acc-lastname" />
+          </mat-form-field>
+          <button mat-raised-button color="primary" type="submit" id="save-profile-btn" [disabled]="saving()">
+            @if (saving()) { <mat-spinner diameter="18" /> } @else { Save Changes }
+          </button>
+        </form>
+      </div>
+
+      <!-- Password Card -->
+      <div class="sb-card">
+        <div class="card-header">
+          <mat-icon class="card-icon">lock</mat-icon>
+          <h3>Change Password</h3>
+        </div>
+        <mat-divider style="margin-bottom:20px" />
+        <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" novalidate>
+          <mat-form-field appearance="outline">
+            <mat-label>Current password</mat-label>
+            <input matInput [type]="hideCurrentPwd() ? 'password' : 'text'" formControlName="currentPassword" id="acc-curr-pwd" />
+            <button mat-icon-button matSuffix type="button" (click)="hideCurrentPwd.set(!hideCurrentPwd())">
+              <mat-icon>{{ hideCurrentPwd() ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>New password</mat-label>
+            <input matInput [type]="hideNewPwd() ? 'password' : 'text'" formControlName="newPassword" id="acc-new-pwd" />
+            <button mat-icon-button matSuffix type="button" (click)="hideNewPwd.set(!hideNewPwd())">
+              <mat-icon>{{ hideNewPwd() ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+            @if (passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched) {
+              <mat-error>Password must be at least 6 characters</mat-error>
+            }
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Confirm new password</mat-label>
+            <input matInput type="password" formControlName="confirmNewPassword" id="acc-confirm-pwd" />
+          </mat-form-field>
+          <button mat-raised-button color="warn" type="submit" id="change-pwd-btn" [disabled]="changingPwd()">
+            @if (changingPwd()) { <mat-spinner diameter="18" /> } @else { Change Password }
+          </button>
+        </form>
+      </div>
+    </div>
+  }
+</div>

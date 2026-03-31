@@ -13,11 +13,12 @@ public class MappingConfigurations : IRegister
         Map(dest => dest.Answers, src => src.Answers.Select(a => new Answer { Content = a }).ToList(), src => src.Answers != null);
 
         config.NewConfig<Question, QuestionResponse>()
-            .Map(dest => dest.Answers, src => src.Answers.Where(a => a.IsActive).Select(a => new AnswerResponse(a.Id, a.Content)).ToList());
+            .Map(dest => dest.Answers, src => src.Answers.Where(a => a.IsActive).Select(a => new AnswerResponse(a.Id, a.Content)));
 
         config.NewConfig<RegisterRequest, ApplicationUser>().Map(dist => dist.UserName, src => src.Email);
 
-        config.NewConfig<ApplicationUser, UserProfile>().Map(dest => dest.FullName, src => String.Concat(src.FirstName, " ", src.LastName))
+        config.NewConfig<ApplicationUser, UserProfile>()
+            .Map(dest => dest.FullName, src => String.Concat(src.FirstName, " ", src.LastName))
             .Map(dist => dist.UserName, src => src.FirstName);
 
         config.NewConfig<(ApplicationUser, IList<string>), UserResponse>().Map(dest => dest, user => user.Item1)

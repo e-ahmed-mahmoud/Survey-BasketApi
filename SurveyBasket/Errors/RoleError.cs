@@ -1,6 +1,6 @@
 namespace SurveyBasket.Errors;
 
-public static class RoleError
+public record RoleError
 {
     public static Error DuplicatedRole => new("DuplicatedRole", "Role defined before", StatusCodes.Status409Conflict);
 

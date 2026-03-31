@@ -1,6 +1,6 @@
 namespace SurveyBasket.Errors;
 
-public class AuthErrors
+public record AuthErrors
 {
     public static Error InvalidCredentialsError => new("InvalidCredentials", "The provided credentials are invalid.", 400);
     public static Error DuplicatedEmail => new("DuplicatedEmail", "The provided Email used before.", 409);

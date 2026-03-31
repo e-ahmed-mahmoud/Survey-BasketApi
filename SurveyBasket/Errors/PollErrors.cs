@@ -1,6 +1,6 @@
 namespace SurveyBasket.Errors;
 
-public class PollErrors
+public record PollErrors
 {
     public static Error NotDefinedError => new("PollNotFound", "The specified poll was not found.", 404);
 

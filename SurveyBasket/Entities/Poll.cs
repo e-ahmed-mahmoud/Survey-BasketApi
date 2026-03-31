@@ -15,3 +15,4 @@ public sealed class Poll : AuditLogging
     public ICollection<Vote> Votes { get; set; } = [];
 
 }
+

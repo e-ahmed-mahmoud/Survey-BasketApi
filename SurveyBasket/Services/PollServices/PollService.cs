@@ -27,7 +27,7 @@ public class PollService(ApplicationDbContext dbContext) : IPollService
 
     public async Task<Result<PollResponse>> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        var poll = await _dbContext.Polls.AsNoTracking().ProjectToType<PollResponse>().FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+        var poll = await _dbContext.Polls.Where(p => p.Id == id).AsNoTracking().ProjectToType<PollResponse>().FirstOrDefaultAsync(cancellationToken);
         return poll is null ?
             Result.Failure<PollResponse>(PollErrors.NotDefinedError) :
             Result.Success(poll);

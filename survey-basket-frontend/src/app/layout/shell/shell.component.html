@@ -1,0 +1,79 @@
+<mat-sidenav-container class="container-fluid">
+  <!-- Sidebar -->
+  <mat-sidenav #sidenav [opened]="sidenavOpen()" mode="side" class="app-sidenav">
+    <!-- Logo -->
+    <div class="sidenav-logo">
+      <mat-icon class="logo-icon">bar_chart</mat-icon>
+      <span class="logo-text">SurveyBasket</span>
+    </div>
+
+    <mat-divider />
+
+    <!-- Navigation -->
+    <mat-nav-list class="nav-list">
+      @for (item of visibleNavItems; track item.route) {
+      <a mat-list-item [routerLink]="item.route" routerLinkActive="active-nav-item" class="nav-item">
+        <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+        <span matListItemTitle>{{ item.label }}</span>
+      </a>
+      }
+    </mat-nav-list>
+
+    <div class="sidenav-footer">
+      <mat-divider />
+      <a mat-list-item routerLink="/account" class="nav-item">
+        <mat-icon matListItemIcon>manage_accounts</mat-icon>
+        <span matListItemTitle>My Account</span>
+      </a>
+      <a mat-list-item class="nav-item logout-btn" (click)="logout()"
+        style="cursor: pointer; border: none; outline: none;">
+        <mat-icon matListItemIcon>logout</mat-icon>
+        <span matListItemTitle>Logout</span>
+      </a>
+    </div>
+  </mat-sidenav>
+
+  <!-- Main Content -->
+  <mat-sidenav-content class="shell-content container-fluid">
+    <!-- Toolbar -->
+    <mat-toolbar class="app-toolbar" color="primary">
+      <button mat-icon-button (click)="toggleSidenav()" matTooltip="Toggle menu">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <span class="toolbar-spacer"></span>
+      <button mat-icon-button [matMenuTriggerFor]="userMenu" matTooltip="Account">
+        <mat-icon>account_circle</mat-icon>
+      </button>
+      <mat-menu #userMenu="matMenu">
+        <a mat-menu-item routerLink="/account">
+          <mat-icon>person</mat-icon> Profile
+        </a>
+        <mat-divider />
+        <a mat-menu-item (click)="logout()">
+          <mat-icon>logout</mat-icon> Logout
+        </a>
+      </mat-menu>
+    </mat-toolbar>
+
+    <!-- Page Content -->
+    <main class="page-content">
+      <div class="content-wrapper">
+        <router-outlet />
+      </div>
+
+      <!-- App Footer -->
+      <footer class="app-footer">
+        <div class="footer-container">
+          <div class="footer-info">
+            <span>&copy; 2026 SurveyBasket. Developed by Survey Team.</span>
+          </div>
+          <div class="footer-social">
+            <a href="#" matTooltip="Website"><mat-icon>public</mat-icon></a>
+            <a href="#" matTooltip="Contact Us"><mat-icon>email</mat-icon></a>
+            <a href="#" matTooltip="Share"><mat-icon>share</mat-icon></a>
+          </div>
+        </div>
+      </footer>
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

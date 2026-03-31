@@ -1,0 +1,92 @@
+<div class="auth-page">
+  <div class="auth-branding">
+    <div class="branding-content">
+      <div class="brand-icon"><mat-icon>bar_chart</mat-icon></div>
+      <h1 class="brand-name">SurveyBasket</h1>
+      <p class="brand-tagline">Join thousands of teams creating insightful surveys.</p>
+    </div>
+    <div class="branding-bg"></div>
+  </div>
+
+  <div class="auth-form-panel">
+    <div class="auth-form-card">
+      <div class="form-header">
+        <h2>Create account</h2>
+        <p>Start building surveys in minutes</p>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+        <div class="name-row">
+          <mat-form-field appearance="outline">
+            <mat-label>First name</mat-label>
+            <input matInput formControlName="firstName" id="reg-firstname" />
+            @if (form.get('firstName')?.invalid && form.get('firstName')?.touched) {
+            <mat-error>First name is required (min 2 chars)</mat-error>
+            }
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Last name</mat-label>
+            <input matInput formControlName="lastName" id="reg-lastname" />
+            @if (form.get('lastName')?.invalid && form.get('lastName')?.touched) {
+            <mat-error>Last name is required (min 2 chars)</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Email address</mat-label>
+          <mat-icon matPrefix>email</mat-icon>
+          <input matInput type="email" formControlName="email" id="reg-email" />
+          @if (form.get('email')?.hasError('required') && form.get('email')?.touched) {
+          <mat-error>Email is required</mat-error>
+          }
+          @if (form.get('email')?.hasError('email') && form.get('email')?.touched) {
+          <mat-error>Enter a valid email</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>phone Number</mat-label>
+          <mat-icon matPrefix>phone</mat-icon>
+          <input matInput type="text" formControlName="phoneNumber" id="reg-phoneNumber" />
+          @if (form.get('phoneNumber')?.hasError('required') && form.get('phoneNumber')?.touched) {
+          <mat-error>Mobile number is required</mat-error>
+          }
+          @if (form.get('phoneNumber')?.hasError('phoneNumber') && form.get('phoneNumber')?.touched) {
+          <mat-error>Enter a valid mobile number</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Password</mat-label>
+          <mat-icon matPrefix>lock</mat-icon>
+          <input matInput [type]="hidePassword() ? 'password' : 'text'" formControlName="password" id="reg-password" />
+          <button mat-icon-button matSuffix type="button" (click)="hidePassword.set(!hidePassword())">
+            <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          @if (form.get('password')?.invalid && form.get('password')?.touched) {
+          <mat-error>Password must be at least 6 characters</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Confirm password</mat-label>
+          <mat-icon matPrefix>lock_outline</mat-icon>
+          <input matInput type="password" formControlName="confirmPassword" id="reg-confirm-password" />
+          @if (form.errors?.['passwordMismatch'] && form.get('confirmPassword')?.touched) {
+          <mat-error>Passwords do not match</mat-error>
+          }
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" type="submit" class="submit-btn" id="reg-submit"
+          [disabled]="loading()">
+          @if (loading()) { <mat-spinner diameter="20" /> } @else { Create Account }
+        </button>
+      </form>
+
+      <p class="auth-switch">
+        Already have an account? <a routerLink="/auth/login">Sign in</a>
+      </p>
+    </div>
+  </div>
+</div>

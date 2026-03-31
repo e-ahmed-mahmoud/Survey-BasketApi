@@ -1,0 +1,64 @@
+@if (loading()) {
+<div class="loading-center">
+  <mat-spinner diameter="48" />
+</div>
+} @else if (poll()) {
+
+
+<div class="fade-in">
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a routerLink="/polls" mat-button><mat-icon>arrow_back</mat-icon> Polls</a>
+  </div>
+
+  <!-- Hero -->
+  <div class="poll-hero sb-card">
+    <div class="hero-content">
+      <div class="hero-title-row">
+        <h1 class="page-title">{{ poll()!.title }}</h1>
+        <span class="status-chip" [class.published]="poll()!.isPublished" [class.draft]="!poll()!.isPublished">
+          <mat-icon style="font-size:14px;width:14px;height:14px">
+            {{ poll()!.isPublished ? 'public' : 'lock' }}
+          </mat-icon>
+          {{ poll()!.isPublished ? 'Published' : 'Draft' }}
+        </span>
+      </div>
+      <p class="page-subtitle">{{ poll()!.summary }}</p>
+      <div class="hero-meta">
+        <span><mat-icon>calendar_today</mat-icon> {{ poll()!.startsAt | date:'mediumDate' }} – {{ poll()!.endsAt |
+          date:'mediumDate' }}</span>
+      </div>
+    </div>
+    <div class="hero-actions">
+      @if(isAdminOnly()){
+      <button mat-stroked-button (click)="togglePublish()" id="toggle-publish-btn">
+        <mat-icon>{{ poll()!.isPublished ? 'lock' : 'public' }}</mat-icon>
+        {{ poll()!.isPublished ? 'Unpublish' : 'Publish' }}
+      </button>
+      <button mat-raised-button color="primary" (click)="openEdit()" id="edit-poll-btn">
+        <mat-icon>edit</mat-icon> Edit Poll
+      </button>
+      }
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  @if(isAdminOnly()){
+  <mat-tab-group class="poll-tabs" animationDuration="200ms">
+    <mat-tab label="Questions">
+      <div class="tab-content">
+        <app-questions-list [pollId]="poll()!.id" />
+      </div>
+    </mat-tab>
+    <mat-tab label="Analytics">
+      <div class="tab-content">
+        <p class="placeholder-msg">
+          <mat-icon>bar_chart</mat-icon>
+          Analytics — view on <a routerLink="/dashboard">Dashboard</a>
+        </p>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+  }
+</div>
+}

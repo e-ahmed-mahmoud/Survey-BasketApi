@@ -3,6 +3,8 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
     <UserSecretsId>3905cc52-1aed-4f62-b557-125997f5e9d4</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
@@ -19,7 +21,7 @@
     <PackageReference Include="Hangfire.Dashboard.Basic.Authentication" Version="8.0.0" />
     <PackageReference Include="Hangfire.SqlServer" Version="1.8.23" />
     <PackageReference Include="MailKit" Version="2.7.0" />
-    <PackageReference Include="Mapster" Version="7.4.0" />
+    <PackageReference Include="Mapster" Version="10.0.4-a" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0" />
@@ -32,8 +34,9 @@
     <PackageReference Include="Microsoft.Extensions.Caching.Hybrid" Version="10.2.0" />
     <PackageReference Include="Scalar.AspNetCore.Microsoft" Version="2.10.3" />
     <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.0.1" />
-    <PackageReference Include="Mapster.DependencyInjection" Version="*" />
+    <PackageReference Include="Mapster.DependencyInjection" Version="10.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.5" />
     <PackageReference Include="System.Linq.Dynamic.Core" Version="1.7.1" />
+
   </ItemGroup>
 </Project>

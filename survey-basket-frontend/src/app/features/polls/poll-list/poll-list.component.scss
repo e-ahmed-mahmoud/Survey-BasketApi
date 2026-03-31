@@ -1,0 +1,29 @@
+.poll-title-link {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
+  &:hover { text-decoration: underline; }
+}
+
+.summary-cell {
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-secondary);
+}
+
+.search-field {
+  width: 240px;
+}
+
+.no-data-cell {
+  text-align: center;
+  padding: 48px 0;
+  color: var(--text-muted);
+
+  mat-icon { font-size: 48px; width: 48px; height: 48px; display: block; margin: 0 auto 8px; }
+  p { margin: 0; font-size: 1rem; }
+}
+
+.delete-action { color: var(--error) !important; }

@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.RateLimiting;
 using Asp.Versioning;
+using Asp.Versioning.ApiExplorer;
 using FluentValidation.AspNetCore;
 using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -9,14 +10,18 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using SurveyBasket.Abstractions.Const;
 using SurveyBasket.Authentication;
 using SurveyBasket.Authentication.Authorization;
 using SurveyBasket.Extensions.Emails;
+using SurveyBasket.OpenApi;
 using SurveyBasket.Services.Dashboard;
 using SurveyBasket.Services.NotificaitonServices;
 using SurveyBasket.Services.RoleServices;
 using SurveyBasket.Services.UserServices;
 using SurveyBasket.Services.VoteService;
+using SurveyBasket.SwaggerConfig;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace SurveyBasket;
 
@@ -30,7 +35,7 @@ public static class DependencyInjection
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection") ??
             throw new InvalidOperationException("Connection string 'DefaultConnection' not found."));
         });
-        var allowedOrigins = configuration.GetSection("AllowedOrigins").Get<string[]>();
+        var allowedOrigins = configuration.GetSection("AllowedOrigins").Get<string[]>() ?? new[] { "http://localhost:61933" };
         services.AddCors(options => options.AddPolicy("AllowAll",
             builder => builder.WithOrigins(allowedOrigins!).AllowAnyMethod().AllowAnyHeader())); //WithOrigins("http://localhost:3000") for specific origins
 
@@ -47,14 +52,13 @@ public static class DependencyInjection
         services.AddIdentityConfig(configuration);
         services.AddMapsterConfig();
         services.AddFluentValidationConfig();
-        services.AddSwaggerAndOpenApi();
         services.AddHttpContextAccessor();
         services.AddHangfireConfig(configuration);
         services.ConfigRateLimit();
         services.AddApiVersioning(options =>
         {
-            options.DefaultApiVersion = new ApiVersion(majorVersion: 1);
             options.AssumeDefaultVersionWhenUnspecified = true;
+            options.DefaultApiVersion = new ApiVersion(1, 0);
             options.ApiVersionReader = new HeaderApiVersionReader("x-api-version");
             options.ReportApiVersions = true;
         }
@@ -64,6 +68,10 @@ public static class DependencyInjection
             options.SubstituteApiVersionInUrl = true;   // substitute API version in URL when generating swagger docs
         });
 
+        services
+            .AddEndpointsApiExplorer()
+            .AddSwaggerAndOpenApi()
+            .AddOpenApi();
 
         services.AddScoped<IPollService, PollService>();
         services.AddScoped<IQuestionService, QuestionService>();
@@ -79,8 +87,50 @@ public static class DependencyInjection
 
     private static IServiceCollection AddSwaggerAndOpenApi(this IServiceCollection services)
     {
-        // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-        services.AddOpenApi();
+        services.AddSwaggerGen(options =>
+        {
+            var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+            options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFile));
+            options.CustomSchemaIds(type => type.FullName);
+
+            options.OperationFilter<SwaggerDefaultValues>();
+
+        });
+        services.AddTransient<IConfigureOptions<SwaggerGenOptions>, SwaggerConfigureOptions>();
+        return services;
+    }
+
+    private static IServiceCollection AddOpenApi(this IServiceCollection services)
+    {
+        //add mutiple OpenAPI versions
+        var serviceProvider = services.BuildServiceProvider();
+        var apiVersionDescriptionProvider = serviceProvider.GetRequiredService<IApiVersionDescriptionProvider>();
+
+        foreach (var description in apiVersionDescriptionProvider.ApiVersionDescriptions)
+        {
+
+            services.AddOpenApi(description.GroupName, options =>
+            {
+
+                options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
+                options.AddDocumentTransformer((document, context, cancellationToken) =>
+                {
+                    document.Info = new()
+                    {
+                        Title = "Survey Basket API",
+                        Version = description.ApiVersion.ToString(),
+                        Description = $"An API for managing surveys and polls. Version {(description.IsDeprecated ? "This API version has been deprecated." : string.Empty)}",
+                        Contact = new()
+                        {
+                            Name = "Ahmed Mahmoud",
+                            Email = "ahmed.mahmoud.6618@gmail.com"
+                        }
+                    };
+                    return Task.CompletedTask;
+                });
+            });
+        }
+
         return services;
     }
 
@@ -152,6 +202,9 @@ public static class DependencyInjection
                 ClockSkew = TimeSpan.Zero // remove delay of token when expire
             };
         });
+
+        services.AddAuthorization(options =>
+            options.AddPolicy("OpenAPIAdminPolicy", p => p.RequireRole(DefaultRoles.Admin)));
 
         return services;
     }

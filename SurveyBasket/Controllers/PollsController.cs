@@ -5,8 +5,8 @@ using SurveyBasket.Authentication.Authorization;
 
 namespace SurveyBasket.Controllers;
 
-[ApiVersion("1.0", Deprecated = true)]
-[ApiVersion("2.0")]
+[ApiVersion(1.0)]
+[ApiVersion(2.0)]
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
@@ -22,7 +22,7 @@ public class PollsController(IPollService pollService) : ControllerBase
         return Ok((await _pollService.GetAllPollsAsync(cancellationToken)).Value);
     }
 
-    [MapToApiVersion("2.0")]
+    [MapToApiVersion(2.0)]
     [HttpGet("GetPolls")]
     [HasPermission(policyName: PermissionsClaims.GetPolls)]
     public async Task<IActionResult> GetPollsV2(CancellationToken cancellationToken) => Ok((await _pollService.GetAllPollsV2Async(cancellationToken)).Value);
